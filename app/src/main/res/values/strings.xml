@@ -7,4 +7,6 @@
     <string name="sign_up">Signup</string>
     <string name="confirm_password">Confirm password</string>
     <string name="cancel">Cancel</string>
+    <string name="write_m">Написати</string>
+    <string name="send">Send</string>
 </resources>

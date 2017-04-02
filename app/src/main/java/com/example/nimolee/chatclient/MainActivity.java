@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.DataInputStream;
@@ -39,7 +40,23 @@ public class MainActivity extends AppCompatActivity {
             if (answer.equals("l-ok")) {
                 _DIS = dataInputStream;
                 _DOS = dataOutputStream;
-                startConversation();
+                setContentView(R.layout.activity_main);
+                final ListAdapterForMassage listAdapterForMassage = new ListAdapterForMassage(this);
+                ((ListView) findViewById(R.id.main_LV)).setAdapter(listAdapterForMassage);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String msg;
+                        try {
+                            while (true) {
+                                msg = _DIS.readUTF();
+                                listAdapterForMassage.get_messages().add(new Message(msg));
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
             } else {
                 Toast.makeText(this, "Неправильне співвідношення логіна та паролю", Toast.LENGTH_LONG).show();
             }
@@ -84,11 +101,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private void startConversation() {
-        setContentView(R.layout.activity_main);
-
     }
 
     public void send(View view) {
