@@ -9,17 +9,17 @@ import android.widget.TextView;
 
 import java.util.Vector;
 
-public class ListAdapterForMassage extends BaseAdapter {
+class ListAdapterForMassage extends BaseAdapter {
 
     private Context _context;
     private Vector<Message> _messages;
 
-    public ListAdapterForMassage(Context context) {
+    ListAdapterForMassage(Context context) {
         _context = context;
         _messages = new Vector<>();
     }
 
-    public Vector<Message> get_messages() {
+    Vector<Message> get_messages() {
         return _messages;
     }
 

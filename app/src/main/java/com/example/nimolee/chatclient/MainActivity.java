@@ -25,44 +25,59 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void login(View view) {
-        Socket socket;
-        InetAddress inetAddress;
-        try {
-            inetAddress = InetAddress.getByName(((EditText) findViewById(R.id.login_ip)).getText().toString());
-            socket = new Socket(inetAddress, port);
-            DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
-            DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
-            String loginData = "l\n";
-            loginData += ((EditText) findViewById(R.id.login_username)).getText().toString() + "\n";
-            loginData += ((EditText) findViewById(R.id.login_password)).getText().toString() + "\n";
-            dataOutputStream.writeUTF(loginData);
-            String answer = dataInputStream.readUTF();
-            if (answer.equals("l-ok")) {
-                _DIS = dataInputStream;
-                _DOS = dataOutputStream;
-                setContentView(R.layout.activity_main);
-                final ListAdapterForMassage listAdapterForMassage = new ListAdapterForMassage(this);
-                ((ListView) findViewById(R.id.main_LV)).setAdapter(listAdapterForMassage);
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String msg;
-                        try {
-                            while (true) {
-                                msg = _DIS.readUTF();
-                                listAdapterForMassage.get_messages().add(new Message(msg));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Socket socket;
+                InetAddress inetAddress;
+                try {
+                    inetAddress = InetAddress.getByName(((EditText) findViewById(R.id.login_ip)).getText().toString());
+                    socket = new Socket(inetAddress, port);
+                    DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
+                    DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
+                    String loginData = "l\n";
+                    loginData += ((EditText) findViewById(R.id.login_username)).getText().toString() + "\n";
+                    loginData += ((EditText) findViewById(R.id.login_password)).getText().toString() + "\n";
+                    dataOutputStream.writeUTF(loginData);
+                    String answer = dataInputStream.readUTF();
+                    if (answer.equals("l-ok")) {
+                        _DIS = dataInputStream;
+                        _DOS = dataOutputStream;
+                        final ListAdapterForMassage listAdapterForMassage = new ListAdapterForMassage(getBaseContext());
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                setContentView(R.layout.activity_main);
+                                ((ListView) findViewById(R.id.main_LV)).setAdapter(listAdapterForMassage);
                             }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        });
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                String msg;
+                                try {
+                                    while (true) {
+                                        msg = _DIS.readUTF();
+                                        listAdapterForMassage.get_messages().add(new Message(msg));
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }).start();
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getBaseContext(), "Неправильне співвідношення логіна та паролю", Toast.LENGTH_LONG).show();
+                            }
+                        });
                     }
-                }).start();
-            } else {
-                Toast.makeText(this, "Неправильне співвідношення логіна та паролю", Toast.LENGTH_LONG).show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        }).start();
     }
 
     public void openLogin(View view) {
@@ -74,33 +89,52 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void sign_up(View view) {
-        Socket socket;
-        InetAddress inetAddress;
-        try {
-            inetAddress = InetAddress.getByName(((EditText) findViewById(R.id.sign_up_ip)).getText().toString());
-            socket = new Socket(inetAddress, port);
-            DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
-            DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
-            String signUpData = "l\n";
-            signUpData += ((EditText) findViewById(R.id.sign_up_username)).getText().toString() + "\n";
-            String signUpPassword = ((EditText) findViewById(R.id.sign_up_password)).getText().toString();
-            if (signUpPassword.equals(((EditText) findViewById(R.id.sign_up_confPassword)).getText().toString())) {
-                signUpData += signUpPassword + "\n";
-                dataOutputStream.writeUTF(signUpData);
-                String answer = dataInputStream.readUTF();
-                if (answer.equals("s-ok")) {
-                    setContentView(R.layout.activity_main);
-                    _DIS = dataInputStream;
-                    _DOS = dataOutputStream;
-                } else {
-                    Toast.makeText(this, "Даний логін вже зайнято", Toast.LENGTH_LONG).show();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Socket socket;
+                InetAddress inetAddress;
+                try {
+                    inetAddress = InetAddress.getByName(((EditText) findViewById(R.id.sign_up_ip)).getText().toString());
+                    socket = new Socket(inetAddress, port);
+                    DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
+                    DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
+                    String signUpData = "r\n";
+                    signUpData += ((EditText) findViewById(R.id.sign_up_username)).getText().toString() + "\n";
+                    String signUpPassword = ((EditText) findViewById(R.id.sign_up_password)).getText().toString();
+                    if (signUpPassword.equals(((EditText) findViewById(R.id.sign_up_confPassword)).getText().toString())) {
+                        signUpData += signUpPassword + "\n";
+                        dataOutputStream.writeUTF(signUpData);
+                        String answer = dataInputStream.readUTF();
+                        if (answer.equals("s-ok")) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getBaseContext(), "Реєстрація пройшла успішно", Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        } else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getBaseContext(), "Даний логін вже зайнято", Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        }
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getBaseContext(), "Не співпадають паролі", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } else {
-                Toast.makeText(this, "Не співпадають паролі", Toast.LENGTH_LONG).show();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        }).start();
+
     }
 
     public void send(View view) {
