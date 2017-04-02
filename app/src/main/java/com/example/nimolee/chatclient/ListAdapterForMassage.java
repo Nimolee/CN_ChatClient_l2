@@ -25,7 +25,7 @@ class ListAdapterForMassage extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return 0;
+        return _messages.size();
     }
 
     @Override

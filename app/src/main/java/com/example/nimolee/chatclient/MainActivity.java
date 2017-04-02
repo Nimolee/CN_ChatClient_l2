@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.DataInputStream;
@@ -138,6 +139,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void send(View view) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    _DOS.writeUTF("m\n" + ((TextView) findViewById(R.id.main_writeM)).getText().toString());
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ((TextView) findViewById(R.id.main_writeM)).setText("");
+                        }
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
 
     }
 }
