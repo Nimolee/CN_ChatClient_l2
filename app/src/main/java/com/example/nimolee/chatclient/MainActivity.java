@@ -18,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
     int port = 1488;
     DataOutputStream _DOS;
     DataInputStream _DIS;
+    ListAdapterForSelectUser listAdapterForSelectUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +33,8 @@ public class MainActivity extends AppCompatActivity {
                 Socket socket;
                 InetAddress inetAddress;
                 try {
-                    inetAddress = InetAddress.getByName(((EditText) findViewById(R.id.login_ip)).getText().toString());
+                    String ip = ((TextView) findViewById(R.id.login_ip)).getText().toString();
+                    inetAddress = InetAddress.getByName(ip);
                     socket = new Socket(inetAddress, port);
                     DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
                     DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
@@ -44,12 +46,36 @@ public class MainActivity extends AppCompatActivity {
                     if (answer.equals("l-ok")) {
                         _DIS = dataInputStream;
                         _DOS = dataOutputStream;
+                        listAdapterForSelectUser = new ListAdapterForSelectUser(getBaseContext(), _DOS);
                         final ListAdapterForMassage listAdapterForMassage = new ListAdapterForMassage(getBaseContext());
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                setContentView(R.layout.activity_main);
+                                setContentView(R.layout.drawable_layout);
                                 ((ListView) findViewById(R.id.main_LV)).setAdapter(listAdapterForMassage);
+                                ((ListView) findViewById(R.id.drawer_LV)).setAdapter(listAdapterForSelectUser);
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        String out = "t";
+                                        for (int i = 0; i < listAdapterForSelectUser.get_userID().size(); i++) {
+                                            if (listAdapterForSelectUser.get_useUser().get(i)) {
+                                                out += "\n" + listAdapterForSelectUser.get_userID().get(i);
+                                            }
+                                        }
+                                        final String out1 = out;
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                try {
+                                                    _DOS.writeUTF(out1);
+                                                } catch (IOException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        }).start();
+                                    }
+                                }).start();
                             }
                         });
                         new Thread(new Runnable() {
@@ -59,7 +85,26 @@ public class MainActivity extends AppCompatActivity {
                                 try {
                                     while (true) {
                                         msg = _DIS.readUTF();
-                                        listAdapterForMassage.get_messages().add(new Message(msg));
+                                        switch (msg.split("\n")[0]) {
+                                            case "m":
+                                                listAdapterForMassage.get_messages().add(new Message(msg));
+                                                runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        try {
+                                                            listAdapterForMassage.notifyDataSetChanged();
+                                                            ((ListView) findViewById(R.id.main_LV)).setSelection(listAdapterForMassage.get_messages().size());
+                                                        } catch (Exception ignored) {
+                                                        }
+                                                    }
+                                                });
+                                                break;
+                                            case "u":
+                                                for (int i = 1; i < msg.split("\n").length; i++) {
+                                                    listAdapterForSelectUser.addUser(Integer.parseInt(msg.split("\n")[i].split(" ")[0]), msg.split("\n")[i].split(" ")[1]);
+                                                }
+                                                break;
+                                        }
                                     }
                                 } catch (IOException e) {
                                     e.printStackTrace();
@@ -155,6 +200,5 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }).start();
-
     }
 }
