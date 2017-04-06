@@ -15,7 +15,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 public class MainActivity extends AppCompatActivity {
-    int port = 1488;
+    int port = 2170;
     DataOutputStream _DOS;
     DataInputStream _DIS;
     ListAdapterForSelectUser listAdapterForSelectUser;
@@ -35,7 +35,18 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     String ip = ((TextView) findViewById(R.id.login_ip)).getText().toString();
                     inetAddress = InetAddress.getByName(ip);
-                    socket = new Socket(inetAddress, port);
+                    try {
+                        socket = new Socket(inetAddress, port);
+                        socket.setSoTimeout(0);
+                    } catch (Exception e) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getBaseContext(), "Сервер недоступний.", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                        return;
+                    }
                     DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
                     DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
                     String loginData = "l\n";
@@ -107,6 +118,13 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     }
                                 } catch (IOException e) {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(getBaseContext(), "Втрачено зв'язок з сервером.", Toast.LENGTH_LONG).show();
+                                            setContentView(R.layout.login);
+                                        }
+                                    });
                                     e.printStackTrace();
                                 }
                             }
@@ -147,23 +165,50 @@ public class MainActivity extends AppCompatActivity {
                     DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
                     String signUpData = "r\n";
                     signUpData += ((EditText) findViewById(R.id.sign_up_username)).getText().toString() + "\n";
-                    String signUpPassword = ((EditText) findViewById(R.id.sign_up_password)).getText().toString();
-                    if (signUpPassword.equals(((EditText) findViewById(R.id.sign_up_confPassword)).getText().toString())) {
-                        signUpData += signUpPassword + "\n";
-                        dataOutputStream.writeUTF(signUpData);
-                        String answer = dataInputStream.readUTF();
-                        if (answer.equals("s-ok")) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(getBaseContext(), "Реєстрація пройшла успішно", Toast.LENGTH_LONG).show();
+                    if (!signUpData.contains(" ")) {
+                        String signUpPassword = ((EditText) findViewById(R.id.sign_up_password)).getText().toString();
+                        if (signUpPassword.length() > 3 && signUpPassword.length() < 33) {
+                            if (!signUpPassword.contains(" ")) {
+                                if (signUpPassword.equals(((EditText) findViewById(R.id.sign_up_confPassword)).getText().toString())) {
+                                    signUpData += signUpPassword + "\n";
+                                    dataOutputStream.writeUTF(signUpData);
+                                    String answer = dataInputStream.readUTF();
+                                    if (answer.equals("s-ok")) {
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(getBaseContext(), "Реєстрація пройшла успішно.", Toast.LENGTH_LONG).show();
+                                            }
+                                        });
+                                    } else {
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(getBaseContext(), "Даний логін вже зайнято.", Toast.LENGTH_LONG).show();
+                                            }
+                                        });
+                                    }
+                                } else {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(getBaseContext(), "Не співпадають паролі.", Toast.LENGTH_LONG).show();
+                                        }
+                                    });
                                 }
-                            });
+                            } else {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getBaseContext(), "Пароль не повинен містити пробіли.", Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            }
                         } else {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(getBaseContext(), "Даний логін вже зайнято", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getBaseContext(), "Неприпустима довжина паролю.", Toast.LENGTH_LONG).show();
                                 }
                             });
                         }
@@ -171,11 +216,12 @@ public class MainActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(getBaseContext(), "Не співпадають паролі", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getBaseContext(), "Логін не повинен містити пробіли.", Toast.LENGTH_LONG).show();
                             }
                         });
                     }
                 } catch (IOException e) {
+                    Toast.makeText(getBaseContext(), "Сервер недоступний.", Toast.LENGTH_LONG).show();
                     e.printStackTrace();
                 }
             }

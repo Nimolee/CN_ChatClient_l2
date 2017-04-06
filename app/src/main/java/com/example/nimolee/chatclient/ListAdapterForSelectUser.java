@@ -36,17 +36,11 @@ public class ListAdapterForSelectUser extends BaseAdapter {
         _DOS = Dos;
     }
 
-    public Context get_context() {
-        return _context;
-    }
 
     public Vector<Integer> get_userID() {
         return _userID;
     }
 
-    public Vector<String> get_users() {
-        return _users;
-    }
 
     public Vector<Boolean> get_useUser() {
         return _useUser;

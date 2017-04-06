@@ -2,15 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="bottom">
+    android:gravity="bottom"
+    android:orientation="vertical">
 
     <ListView
         android:id="@+id/main_LV"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
-        android:stackFromBottom="true"/>
+        android:stackFromBottom="true" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,7 +23,8 @@
             android:layout_weight="1"
             android:hint="@string/write_m"
             android:inputType="text"
-            android:maxLines="1"/>
+            android:maxLength="4096"
+            android:maxLines="1" />
 
         <Button
             android:id="@+id/main_sendM"
