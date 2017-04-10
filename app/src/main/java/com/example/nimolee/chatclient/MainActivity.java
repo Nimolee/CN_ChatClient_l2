@@ -1,5 +1,6 @@
 package com.example.nimolee.chatclient;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -89,46 +90,10 @@ public class MainActivity extends AppCompatActivity {
                                 }).start();
                             }
                         });
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                String msg;
-                                try {
-                                    while (true) {
-                                        msg = _DIS.readUTF();
-                                        switch (msg.split("\n")[0]) {
-                                            case "m":
-                                                listAdapterForMassage.get_messages().add(new Message(msg));
-                                                runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        try {
-                                                            listAdapterForMassage.notifyDataSetChanged();
-                                                            ((ListView) findViewById(R.id.main_LV)).setSelection(listAdapterForMassage.get_messages().size());
-                                                        } catch (Exception ignored) {
-                                                        }
-                                                    }
-                                                });
-                                                break;
-                                            case "u":
-                                                for (int i = 1; i < msg.split("\n").length; i++) {
-                                                    listAdapterForSelectUser.addUser(Integer.parseInt(msg.split("\n")[i].split(" ")[0]), msg.split("\n")[i].split(" ")[1]);
-                                                }
-                                                break;
-                                        }
-                                    }
-                                } catch (IOException e) {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Toast.makeText(getBaseContext(), "Втрачено зв'язок з сервером.", Toast.LENGTH_LONG).show();
-                                            setContentView(R.layout.login);
-                                        }
-                                    });
-                                    e.printStackTrace();
-                                }
-                            }
-                        }).start();
+                        LoadMessageService.listAdapterForMassage = listAdapterForMassage;
+                        LoadMessageService.listAdapterForSelectUser = listAdapterForSelectUser;
+                        LoadMessageService._DIS = _DIS;
+                        startService(new Intent(getBaseContext(), LoadMessageService.class));
                     } else {
                         runOnUiThread(new Runnable() {
                             @Override

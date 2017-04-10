@@ -9,4 +9,8 @@
     <string name="cancel">Cancel</string>
     <string name="write_m">Написати</string>
     <string name="send">Send</string>
+
+    <string name="new_message_notification_title_template">New message: %1$s</string>
+    <string name="action_share">Share</string>
+    <string name="action_reply">Reply</string>
 </resources>

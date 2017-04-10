@@ -27,7 +27,7 @@ public class ListAdapterForSelectUser extends BaseAdapter {
         if (!_userID.contains(id)) {
             _userID.add(id);
             _users.add(name);
-            _useUser.add(true);
+            _useUser.add(false);
         }
     }
 
