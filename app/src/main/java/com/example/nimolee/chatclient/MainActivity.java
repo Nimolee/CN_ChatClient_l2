@@ -66,28 +66,6 @@ public class MainActivity extends AppCompatActivity {
                                 setContentView(R.layout.drawable_layout);
                                 ((ListView) findViewById(R.id.main_LV)).setAdapter(listAdapterForMassage);
                                 ((ListView) findViewById(R.id.drawer_LV)).setAdapter(listAdapterForSelectUser);
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        String out = "t";
-                                        for (int i = 0; i < listAdapterForSelectUser.get_userID().size(); i++) {
-                                            if (listAdapterForSelectUser.get_useUser().get(i)) {
-                                                out += "\n" + listAdapterForSelectUser.get_userID().get(i);
-                                            }
-                                        }
-                                        final String out1 = out;
-                                        new Thread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                try {
-                                                    _DOS.writeUTF(out1);
-                                                } catch (IOException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                        }).start();
-                                    }
-                                }).start();
                             }
                         });
                         LoadMessageService.listAdapterForMassage = listAdapterForMassage;

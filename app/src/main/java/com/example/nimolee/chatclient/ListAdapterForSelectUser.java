@@ -1,7 +1,6 @@
 package com.example.nimolee.chatclient;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,16 +13,16 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
-public class ListAdapterForSelectUser extends BaseAdapter {
+class ListAdapterForSelectUser extends BaseAdapter {
 
     private Context _context;
     private Vector<Integer> _userID = new Vector<>();
     private Vector<String> _users = new Vector<>();
     private Vector<Boolean> _useUser = new Vector<>();
-    DataOutputStream _DOS;
-    String out;
+    private DataOutputStream _DOS;
+    private String out;
 
-    public void addUser(int id, String name) {
+    void addUser(int id, String name) {
         if (!_userID.contains(id)) {
             _userID.add(id);
             _users.add(name);
@@ -31,19 +30,9 @@ public class ListAdapterForSelectUser extends BaseAdapter {
         }
     }
 
-    public ListAdapterForSelectUser(Context context, DataOutputStream Dos) {
+    ListAdapterForSelectUser(Context context, DataOutputStream Dos) {
         _context = context;
         _DOS = Dos;
-    }
-
-
-    public Vector<Integer> get_userID() {
-        return _userID;
-    }
-
-
-    public Vector<Boolean> get_useUser() {
-        return _useUser;
     }
 
     @Override

@@ -41,7 +41,7 @@ public class LoadMessageService extends Service {
                                         listAdapterForMassage.notifyDataSetChanged();
                                         NewMessageNotification newMessageNotification = new NewMessageNotification();
                                         synchronized (newMessageNotification) {
-                                            newMessageNotification.notify(getBaseContext(), msg, 0);
+                                            NewMessageNotification.notify(getBaseContext(), msg, 0);
                                         }
                                     }
                                 });
